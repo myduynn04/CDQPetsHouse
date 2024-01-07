@@ -1,7 +1,7 @@
 
     <?php //xóa tính năng và file này  // phải sửa lại mysql sang sql ở file này
 session_start();
-include("./includes/db.php");
+include("Online-Shopping-System-With-Server-main\admin\admin\includes\db.php");
 
 error_reporting(0);
 if(isset($_GET['action']) && $_GET['action']!="" && $_GET['action']=='delete')

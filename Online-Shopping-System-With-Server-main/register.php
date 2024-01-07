@@ -97,8 +97,9 @@ if(empty($f_name) || empty($l_name) || empty($email) || empty($password) || empt
 		exit();
 	}
 	//existing email address in our database
-	$sql = "SELECT user_id FROM user_info WHERE email = '$email'";
-$check_query = sqlsrv_query($con, $sql);
+	$sql = "SELECT TOP 1 user_id FROM user_info WHERE email = ?";
+	$params = array($email);
+	$check_query = sqlsrv_query($con, $sql, $params);
 
 if ($check_query) {
     $count_email = sqlsrv_has_rows($check_query);
@@ -115,44 +116,43 @@ if ($check_query) {
 		exit();
 	} else {
 		
-		$sql = "INSERT INTO user_info 
-        (user_id, first_name, last_name, email, password, mobile, address1, address2) 
-        VALUES (NULL, ?, ?, ?, ?, ?, ?, ?)";
-
+		// Insert user information into the user_info table
+$sql = "INSERT INTO user_info 
+( first_name, last_name, email, password, mobile, address1, address2) 
+VALUES ( ?, ?, ?, ?, ?, ?, ?)";
 $params = array($f_name, $l_name, $email, $password, $mobile, $address1, $address2);
 
-$stmt = sqlsrv_query($conn, $sql, $params);
+$run_query = sqlsrv_query($con, $sql, $params);
 
-if ($stmt === false) {
-    die(print_r(sqlsrv_errors(), true));
+if ($run_query === false) {
+die(print_r(sqlsrv_errors(), true));
 }
 
-// Get the inserted user_id
-$sql = "SELECT SCOPE_IDENTITY() AS id";
-$stmt = sqlsrv_query($conn, $sql);
+// Retrieve the last inserted user ID and store it in a session variable
+$_SESSION["uid"] = sqlsrv_get_field($run_query, 0);
+echo $_SESSION["uid"];
 
-if ($stmt === false) {
-    die(print_r(sqlsrv_errors(), true));
-}
-
-$row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-$_SESSION["uid"] = $row['id'];
+// Store the first name in a session variable
 $_SESSION["name"] = $f_name;
 
-// Update cart with user_id
+// Update the cart table with the user ID
 $ip_add = $_SERVER['REMOTE_ADDR'];
+
 $sql = "UPDATE cart SET user_id = ? WHERE ip_add = ? AND user_id = -1";
 $params = array($_SESSION["uid"], $ip_add);
 
-$stmt = sqlsrv_query($conn, $sql, $params);
+$run_update = sqlsrv_query($con, $sql, $params);
 
-if ($stmt === false) {
-    die(print_r(sqlsrv_errors(), true));
-}
+if ($run_update === false) {
+die(print_r(sqlsrv_errors(), true));
+} 
 
-echo "register_success";
-echo "<script> location.href='store.php'; </script>";
-exit;
+
+    echo "register_success";
+    echo "<script> location.href='store.php'; </script>";
+    exit;
+
+
 		}
 	}
 	}

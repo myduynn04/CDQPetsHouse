@@ -8,24 +8,29 @@ session_start();
 $name = "";
 $username = "";
 $usn = "";
-$email    = "";
+$email = "";
 $errors = array();
 $reg_date = date("Y/m/d");
 
-// connect to the database
-$serverName = "LAPTOP-86MF1K51";
+// Define your database connection details
+$serverName = "NGUYEN-MY-DUYEN\SQLEXPRESS"; // Replace with your SQL Server host name or IP address
+$database = "Pet"; // Replace with your database name
+
+// Connection options
 $connectionOptions = array(
-    "Database" => "PetManaDemo",
-    "Uid" => "",
-    "PWD" => ""
+    "Database" => $database,      // Replace with your SQL Server password
+    "Encrypt" => "no",             // Disable connection encryption
+    "TrustServerCertificate" => "yes"  // Trust the server certificate
 );
 
+// Connect to the database
 $db = sqlsrv_connect($serverName, $connectionOptions);
 
 // Check the connection
 if (!$db) {
     die(print_r(sqlsrv_errors(), true));
 }
+
 
 // REGISTER USER
 if (isset($_POST['reg_user'])) {
@@ -52,8 +57,13 @@ if (isset($_POST['reg_user'])) {
 
     // first check the database to make sure
     // a user does not already exist with the same username and/or email
-    $user_check_query = "SELECT * FROM admin_info WHERE admin_name='$username' OR admin_email='$email' LIMIT 1";
-    $result = sqlsrv_query($db, $user_check_query);
+  //  $user_check_query = "SELECT * FROM admin_info WHERE admin_name='$username' OR admin_email='$email' LIMIT 1";
+ // Assuming $username và $email are variables containing values you want to check
+     $user_check_query = "SELECT TOP 1 *
+                          FROM admin_info
+                          WHERE admin_name = '$username' OR admin_email = '$email';
+";
+  $result = sqlsrv_query($db, $user_check_query);
     $user = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC);
 
     if ($user) { // if user exists
@@ -84,8 +94,8 @@ if (isset($_POST['reg_user'])) {
 
 // LOGIN ADMIN
 if (isset($_POST['login_admin'])) {
-    $admin_username = sqlsrv_real_escape_string($db, $_POST['admin_username']);
-    $password = sqlsrv_real_escape_string($db, $_POST['password']);
+    $admin_username = $_POST['admin_username'];
+    $password = $_POST['password'];
 
     if (empty($admin_username)) {
         array_push($errors, "Username is required");
@@ -95,18 +105,29 @@ if (isset($_POST['login_admin'])) {
     }
 
     if (count($errors) == 0) {
-        $password = md5($password);
-        $query = "SELECT * FROM admin_info WHERE admin_email='$admin_username' AND admin_password='$password'";
-        $results = sqlsrv_query($db, $query);
+        // Use prepared statements to prevent SQL injection
+        $query = "SELECT * FROM admin_info WHERE admin_email = ? AND admin_password = ?";
+        $params = array($admin_username, $password);
+        $options = array("Scrollable" => SQLSRV_CURSOR_KEYSET);
 
-        if (sqlsrv_has_rows($results)) {
-            $user = sqlsrv_fetch_array($results, SQLSRV_FETCH_ASSOC);
-            $_SESSION['admin_email'] = $user['admin_email'];
-            $_SESSION['admin_name'] = $admin_username;
-            $_SESSION['success'] = "You are now logged in";
-            header('location: ./admin/');
+        $results = sqlsrv_query($db, $query, $params, $options);
+
+        if ($results !== false) {
+            // Check the number of rows returned
+            $num_rows = sqlsrv_num_rows($results);
+
+            if ($num_rows > 0) {
+                $user = sqlsrv_fetch_array($results, SQLSRV_FETCH_ASSOC);
+                $_SESSION['admin_email'] = $user['admin_email'];
+                $_SESSION['admin_name'] = $admin_username;
+                $_SESSION['success'] = "You are now logged in";
+                header('location: ./admin/');
+            } else {
+                array_push($errors, "Wrong username/password combination");
+            }
         } else {
-            array_push($errors, "Wrong username/password combination");
+            // Handle query execution errors
+            die(print_r(sqlsrv_errors(), true));
         }
     }
 }

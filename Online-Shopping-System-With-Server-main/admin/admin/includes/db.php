@@ -1,19 +1,18 @@
 <?php
 
-$serverName = "LAPTOP-86MF1K51";
-$connectionOptions = array(
-    "Database" => "PetManaDemo",
-    "Uid" => "",
-    "PWD" => ""
-);
+$serverName = "NGUYEN-MY-DUYEN\SQLEXPRESS";
+$database = "PetManaDemo";
 
-// Establishes the connection
-$con = sqlsrv_connect($serverName, $connectionOptions);
 
-// Check the connection
-if (!$con)
+$connection = [
+    "Database" => $database,
+    "Encrypt" => "no",  // Disable connection encryption
+    "TrustServerCertificate" => "yes"  // Trust the server certificate
+]; 
+
+$con = sqlsrv_connect($serverName, $connection);
+
+if (!$con) {
     die(print_r(sqlsrv_errors(), true));
-
-else 
-echo'connection established';
+}
 ?>

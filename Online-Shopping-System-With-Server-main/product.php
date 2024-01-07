@@ -56,19 +56,42 @@ include "header.php";
 					<!-- Product main img -->
 					
 					<?php 
-								include 'db.php';
+								include 'D:\VS Code\Project\DTB\cdq2\pets-management\Online-Shopping-System-With-Server-main\db.php';
+								//$product_id = isset($_GET['p']) ? intval($_GET['p']) : 0;
 								$product_id = $_GET['p'];
 								
-								$sql = "SELECT * FROM products WHERE product_id = $product_id";
-								
-								if (!$con) {
-									die("Connection failed: " . sqlsrv_errors());
+								/*if (isset($_GET['p']) && is_numeric($_GET['p'])) {
+									$product_id = intval($_GET['p']);
+									echo " product ID.";
+								} else {
+									// Xử lý khi không có hoặc giá trị không hợp lệ
+									echo "Invalid product ID.";
+									$product_id = 0; // hoặc hiển thị thông báo lỗi
 								}
+								*/
+								$sql = "SELECT * FROM products WHERE product_id = ?";
+								$params = array($product_id);
+
 								
-								$result = sqlsrv_query($con, $sql);
+								   
+								$result = sqlsrv_query($con, $sql, $params);
 								
-								if ($result) {
+								
+								
+								// Kiểm tra có dữ liệu trả về hay không
+								/*if (sqlsrv_has_rows($result)) {
+									// Dữ liệu có sẵn
 									while ($row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC)) {
+										print_r($row);
+									}
+								} else {
+									// Không có dữ liệu
+									echo "No data found.";
+								}*/
+
+								if (sqlsrv_has_rows($result)){
+									while ($row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC)) {
+										//print_r($row);
 										echo '              
                                 <div class="col-md-5 col-md-push-2">
                                 <div id="product-main-img">
@@ -112,7 +135,7 @@ include "header.php";
 
                                  
 									';
-                                    
+									       
 									?>
 									<!-- FlexSlider -->
 									
@@ -442,15 +465,18 @@ include "header.php";
 					</div>
                     ';
 									$_SESSION['product_id'] = $row['product_id'];
-									}
-								} 
+									};
+								
+								};
+								
 								?>	
 								<?php
                     include 'db.php';
 								$product_id = $_GET['p'];
-                                $product_query = "SELECT * FROM products JOIN categories ON product_cat = cat_id WHERE product_cat = $pro_cat AND product_id BETWEEN $product_id AND $product_id+3";
+                                $product_query = "SELECT * FROM products JOIN categories ON product_cat = cat_id WHERE product_cat = cat_id AND product_id BETWEEN $product_id AND $product_id+3";
 								$run_query = sqlsrv_query($con, $product_query);
 								
+								if ($run_query){	
 								if (sqlsrv_has_rows($run_query)) {
 									while ($row = sqlsrv_fetch_array($run_query, SQLSRV_FETCH_ASSOC)) {
 										$pro_id = $row['product_id'];
@@ -459,10 +485,7 @@ include "header.php";
 										$pro_title = $row['product_title'];
 										$pro_price = $row['product_price'];
 										$pro_image = $row['product_image'];
-								
-										
-								
-                        $cat_name = $row["cat_title"];
+                        				$cat_name = $row["cat_title"];
 
                         echo "
 				
@@ -501,9 +524,13 @@ include "header.php";
 							
                         
 			";
+		}}
+		else {
+			echo "No rows found.";
 		}
-        ;
-      
+
+		
+	  
 }
 ?>
 					<!-- product -->

@@ -3,18 +3,6 @@ session_start();
 $ip_add = getenv("REMOTE_ADDR");
 include "db.php"; // file db.php chứa các kết nối vs database
 
-$serverName = "LAPTOP-86MF1K51";
-$connectionOptions = array(
-    "Database" => "PetManaDemo",
-    "Uid" => "",
-    "PWD" => ""
-);
-$con = sqlsrv_connect($serverName, $connectionOptions);
-
-if (!$con) {
-    die(print_r(sqlsrv_errors(), true));
-}
-
 if(isset($_POST["category"])){
 	$category_query = "SELECT * FROM categories";
 
@@ -100,15 +88,41 @@ if(isset($_POST["page"])){
     }
 }
 
-if(isset($_POST["getProduct"])){
+/*if(isset($_POST["getProduct"])){
 	$limit = 9;
 	if(isset($_POST["setPage"])){
 		$pageno = $_POST["pageNumber"];
 		$start = ($pageno * $limit) - $limit;
 	}else{
 		$start = 0;
-	}
-	$product_query = "SELECT * FROM products,categories WHERE product_cat=cat_id LIMIT $start,$limit";
+	}*/
+	if (isset($_POST["getProduct"])) {
+		$limit = 9;
+	
+		try {
+			if (isset($_POST["setPage"])) {
+				$pageno = $_POST["pageNumber"];
+				$start = ($pageno * $limit) - $limit;
+			} else {
+				$start = 0;
+			}
+	
+			// Rest of your code for processing the limit and start values...
+	
+		} catch (Exception $e) {
+			echo "Error: " . $e->getMessage();
+		}
+	
+	
+	//$product_query = "SELECT * FROM products,categories WHERE product_cat=cat_id LIMIT $start,$limit";
+
+				  $product_query = "SELECT TOP $limit * 
+				                    FROM products 
+									JOIN categories ON products.product_cat = categories.cat_id 
+									WHERE products.product_id NOT IN (SELECT TOP $start product_id FROM products ORDER BY product_id) 
+									ORDER BY products.product_id";
+
+
 	$run_query = sqlsrv_query($con,$product_query);
 	if ($run_query === false) {
         die(print_r(sqlsrv_errors(), true));
@@ -159,7 +173,7 @@ if(isset($_POST["getProduct"])){
             ";
         }
     }
-
+	}
 if (isset($_POST["get_seleted_Category"]) || isset($_POST["selectBrand"]) || isset($_POST["search"])) {
 		if (isset($_POST["get_seleted_Category"])) {
 			$id = $_POST["cat_id"];
@@ -261,6 +275,7 @@ if (isset($_POST["get_seleted_Category"]) || isset($_POST["selectBrand"]) || iss
 					</div>
 				";
 			}
+			//
 		} else {
 			$sql = "SELECT id FROM cart WHERE ip_add = ? AND p_id = ? AND user_id = -1";
 			$params = array($ip_add, $p_id);
@@ -505,7 +520,7 @@ if (isset($_POST["get_seleted_Category"]) || isset($_POST["selectBrand"]) || iss
 				}
 			}
 		}
-	}
+	
 	
 // Update Item From cart
 if (isset($_POST["updateCartItem"])) {

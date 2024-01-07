@@ -1,15 +1,20 @@
 <?php
-$serverName = "LAPTOP-86MF1K51"; // Provide SQL Server name
-$connectionOptions = array(
-    "Database" => "PetManaDemo", // Provide database name
-    "Uid" => "", 
-    "PWD" => "" 
-);
-$con = sqlsrv_connect($serverName, $connectionOptions);
+$serverName = "NGUYEN-MY-DUYEN\SQLEXPRESS"; // Provide SQL Server name
+$database = "Pet"; // Provide database name
+
+$connection = [
+    "Database" => $database,
+    "Encrypt" => "no",  // Disable connection encryption
+    "TrustServerCertificate" => "yes"  // Trust the server certificate
+]; 
+
+$con = sqlsrv_connect($serverName, $connection);
 
 if (!$con) {
     die(print_r(sqlsrv_errors(), true));
 }
+
+// Connection established successfully, you can proceed with your database operations
 
 ?>
 

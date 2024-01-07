@@ -8,19 +8,21 @@ session_start();
 #The "login_success" string will be sent back to the calling anonymous function $("#login").click()
 
 if (isset($_POST["email"]) && isset($_POST["password"])) {
-    $email = sqlsrv_real_escape_string($con, $_POST["email"]);
+    $email = $_POST["email"];
     $password = $_POST["password"];
 
     // Check in user_info table
-    $sql = "SELECT * FROM user_info WHERE email = '$email' AND password = '$password'";
-    $run_query = sqlsrv_query($con, $sql);
-    $count = sqlsrv_num_rows($run_query);
-    $row = sqlsrv_fetch_array($run_query);
+    //$sql = "SELECT * FROM user_info WHERE email = '$email' AND password = '$password'";
+   // $run_query = sqlsrv_query($con, $sql);
+   $sql = "SELECT * FROM user_info WHERE email = ? AND password = ?";
+    $params = array($email, $password);
+    $run_query = sqlsrv_query($con, $sql,$params);
+    $count = sqlsrv_has_rows($run_query);
+    $row = sqlsrv_fetch_array($run_query, SQLSRV_FETCH_ASSOC);
 
     $_SESSION["uid"] = $row["user_id"];
     $_SESSION["name"] = $row["first_name"];
-    $ip_add = getenv("REMOTE_ADDR");
-
+    $ip_add = $_SERVER['REMOTE_ADDR'];
     // Check if the "product_list" cookie is available
     if ($count == 1) {
         if (isset($_COOKIE["product_list"])) {

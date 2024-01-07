@@ -7,16 +7,16 @@ $email    = "";
 $errors = array(); 
 
 // connect to the database
-define('DB_SERVER', 'LAPTOP-86MF1K51');
-define('DB_USERNAME', '');
-define('DB_PASSWORD', '');
-define('DB_DATABASE', 'PetManaDemo');
-$connectionOptions = array(
-    "Database" => DB_DATABASE,
-    "Uid" => DB_USERNAME,
-    "PWD" => DB_PASSWORD
-);
-$con = sqlsrv_connect(DB_SERVER, $connectionOptions);
+define('DB_SERVER', 'NGUYEN-MY-DUYEN\SQLEXPRESS');
+
+define('DB_DATABASE', 'Pet');
+$connection = [
+  "Database" => DB_DATABASE,
+  "Encrypt" => "no",  // Disable connection encryption
+  "TrustServerCertificate" => "yes"  // Trust the server certificate
+]; 
+
+$con = sqlsrv_connect(DB_SERVER, $connection);
 
 if (!$con) {
     die(print_r(sqlsrv_errors(), true));
@@ -41,7 +41,11 @@ if (isset($_POST['reg_user'])) {
 
   // first check the database to make sure 
   // a user does not already exist with the same username and/or email
-  $user_check_query = "SELECT * FROM register WHERE Name='$username' OR email='$email' LIMIT 1";
+  //$user_check_query = "SELECT * FROM register WHERE Name='$username' OR email='$email' LIMIT 1";
+  $user_check_query = "SELECT TOP (1) *
+    FROM register
+    WHERE Name = '$username' OR email = '$email';
+";
   $result = sqlsrv_query($con, $user_check_query);
   $user = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC);
   

@@ -1,6 +1,10 @@
-<?php include("admin\server\serversql.php"); ?>
+<?php
+ include("D:/VS Code/Project/DTB/cdq2/pets-management/Online-Shopping-System-With-Server-main/admin/server/serversql.php"); 
+ ?>
 <!DOCTYPE html>
 <html lang="en">
+<!-- The rest of your HTML code goes here -->
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,7 +37,7 @@
                     <div class="signin-form">
                         <h2 class="form-title">ADMIN LOGIN</h2>
                         <form  class="register-form" id="login-form" action="login.php" method="post">
-                            <div class="alert alert-danger"><h4 id="e_msg"><?php include('error.php'); ?></h4></div>
+                            <div class="alert alert-danger"><h4 id="e_msg"><?php include('D:\VS Code\Project\DTB\cdq2\pets-management\Online-Shopping-System-With-Server-main\admin\admin\errors.php'); ?></h4></div>
                             <div class="form-group">
                                 <label for="your_name"><i class="zmdi zmdi-account material-icons-name"></i></label>
                                 <input type="text" name="admin_username" id="your_name" placeholder="Admin Email"/>

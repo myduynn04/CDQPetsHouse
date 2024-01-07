@@ -133,10 +133,11 @@ session_start();
 								
 								$sql = "SELECT first_name FROM user_info WHERE user_id = ?";
 								
-								// Assuming $conn is your SQLSRV connection resource
+								// Assuming $con is your SQLSRV connection resource
 								$params = array($_SESSION["uid"]);
 								
 								$query = sqlsrv_query($con, $sql, $params);
+								
 								
 								if ($query === false) {
 									die(print_r(sqlsrv_errors(), true));
@@ -144,10 +145,10 @@ session_start();
 							
 								// Fetch the result as an associative array
 								$row = sqlsrv_fetch_array($query, SQLSRV_FETCH_ASSOC);
-				   
+					            $first_name = $row["first_name"];  
                                 echo '
                                <div class="dropdownn">
-                                  <a href="#" class="dropdownn" data-toggle="modal" data-target="#myModal" ><i class="fa fa-user-o"></i> HI '.$row["first_name"].'</a>
+                                  <a href="#" class="dropdownn" data-toggle="modal" data-target="#myModal" ><i class="fa fa-user-o"></i> Hi '.$row["first_name"].'</a>
                                   <div class="dropdownn-content">
                                     <a href="" data-toggle="modal" data-target="#profile"><i class="fa fa-user-circle" aria-hidden="true" ></i>My Profile</a>
                                     <a href="logout.php"  ><i class="fa fa-sign-in" aria-hidden="true"></i>Log out</a>
@@ -240,7 +241,7 @@ session_start();
 									<a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
 										<i class="fa fa-shopping-cart"></i>
 										<span>Your Cart</span>
-										<div class="badge qty">0</div>
+										<div class="badge qty"> 0 </div>
 									</a>
 									<div class="cart-dropdown"  >
 										<div class="cart-list" id="cart_product">
